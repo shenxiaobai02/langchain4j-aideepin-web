@@ -4,7 +4,7 @@
 
 本仓库是langchain4j-aideepin的前端项目
 
-**LangChain4j-AIDeepin（得应） 是基于AI的工作效率提升工具。**
+**LangChain4j-AIDeepin（小白） 是基于AI的工作效率提升工具。**
 
  *可用于辅助企业/团队进行技术研发、产品设计、规章制度咨询、系统或商品咨询、客服话术支撑等工作*
 

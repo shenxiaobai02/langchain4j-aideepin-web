@@ -19,6 +19,7 @@ export default {
     yes: 'Yes',
     no: 'No',
     confirm: 'Confirm',
+    cancel: 'Cancel',
     download: 'Download',
     noData: 'No Data',
     wrong: 'Something went wrong, please try again later.',
@@ -38,6 +39,7 @@ export default {
   },
   chat: {
     newChatButton: 'New Chat',
+    newChatWithRole: 'New Chat with Role',
     placeholder: 'Ask me anything...(Shift + Enter = line break)',
     placeholderMobile: 'Ask me anything...',
     copy: 'Copy',

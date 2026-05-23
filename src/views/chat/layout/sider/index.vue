@@ -7,14 +7,48 @@ import CreateConv from './CreateConv.vue'
 import { useAppStore, useChatStore } from '@/store'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
 import { t } from '@/locales'
+import api from '@/api'
 
 const appStore = useAppStore()
 const chatStore = useChatStore()
 const ms = useMessage()
 const createConvRef = ref()
 const { isMobile } = useBasicLayout()
+const creatingConv = ref(false)
 
 const collapsed = computed(() => appStore.siderCollapsed)
+
+async function handleQuickAdd() {
+  if (creatingConv.value)
+    return
+
+  if (chatStore.allConvsCount >= 50) {
+    ms.warning(t('chat.converstaionReachLimit50'), {
+      duration: 1000,
+    })
+    return
+  }
+
+  creatingConv.value = true
+  try {
+    const { success, data: newConv } = await api.convAdd<Chat.Conversation>({
+      title: '新对话',
+      remark: '',
+      aiSystemMessage: '',
+    })
+    if (success && newConv)
+      chatStore.addConvAndActive(newConv)
+  } catch (error: any) {
+    console.log('addConv error', error)
+    if (error.message) {
+      ms.error(error.message, {
+        duration: 2000,
+      })
+    }
+  } finally {
+    creatingConv.value = false
+  }
+}
 
 function handleAdd(this: any) {
   if (chatStore.allConvsCount >= 50) {
@@ -69,9 +103,12 @@ watch(
   >
     <div class="flex flex-col h-full" :style="mobileSafeArea">
       <main class="flex flex-col flex-1 min-h-0">
-        <div class="p-4">
-          <NButton dashed block @click="handleAdd">
+        <div class="p-4 space-y-2">
+          <NButton dashed block :loading="creatingConv" @click="handleQuickAdd">
             {{ $t('chat.newChatButton') }}
+          </NButton>
+          <NButton dashed block size="small" @click="handleAdd">
+            {{ $t('chat.newChatWithRole') }}
           </NButton>
         </div>
         <div class="flex-1 min-h-0 pb-4 overflow-hidden">

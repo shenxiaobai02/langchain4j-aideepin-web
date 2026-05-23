@@ -279,6 +279,17 @@ async function createChatTask(userAudioUuid = '', userAudioUrl = '', audioDurati
       ms.error('会话不存在或已被删除')
       return
     }
+
+    const isFirstMessage = chatStore.getMsgsByConv(props.conversationUuid).length === 0
+    if (isFirstMessage) {
+      const newTitle = message.length > 20 ? message.substring(0, 20) : message
+      try {
+        await api.convEdit(props.conversationUuid, { title: newTitle })
+        chatStore.updateConv(props.conversationUuid, { title: newTitle })
+      } catch (error) {
+        console.error('Failed to update conversation title:', error)
+      }
+    }
     const answerContentType = chatStore.answerContentType(conv, userAudioUuid)
 
     const audioPlayState = emptyAudioPlayState()

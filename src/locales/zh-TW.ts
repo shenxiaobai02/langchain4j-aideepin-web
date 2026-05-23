@@ -19,6 +19,7 @@ export default {
     yes: '是',
     no: '否',
     confirm: '確認',
+    cancel: '取消',
     download: '下載',
     noData: '目前無資料',
     wrong: '發生錯誤，請稍後再試。',
@@ -38,6 +39,7 @@ export default {
   },
   chat: {
     newChatButton: '新建對話',
+    newChatWithRole: '新建角色',
     placeholder: '來說點什麼...（Shift + Enter = 換行）',
     placeholderMobile: '來說點什麼...',
     copy: '複製',

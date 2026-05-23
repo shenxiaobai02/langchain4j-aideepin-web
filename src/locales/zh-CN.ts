@@ -19,6 +19,7 @@ export default {
     yes: '是',
     no: '否',
     confirm: '确定',
+    cancel: '取消',
     download: '下载',
     noData: '暂无数据',
     wrong: '好像出错了，请稍后再试。',
@@ -37,7 +38,8 @@ export default {
     captcha: '验证码',
   },
   chat: {
-    newChatButton: '新建角色',
+    newChatButton: '新建对话',
+    newChatWithRole: '新建角色',
     placeholder: '来说点什么吧...（Shift + Enter = 换行）',
     placeholderMobile: '来说点什么...',
     copy: '复制',
