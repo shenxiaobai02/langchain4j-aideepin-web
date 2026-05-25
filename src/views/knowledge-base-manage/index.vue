@@ -160,7 +160,7 @@ async function search(currentPage: number) {
   }
   loading.value = true
   try {
-    const resp = await api.knowledgeBaseSearchMine(searchValue.value, currentPage, paginationReactive.pageSize)
+    const resp = await api.knowledgeBaseSearchMine<KnowledgeBase.InfoListResp>(searchValue.value, currentPage, paginationReactive.pageSize)
     infoList.value = resp.data.records
     paginationReactive.page = currentPage
     paginationReactive.itemCount = resp.data.total

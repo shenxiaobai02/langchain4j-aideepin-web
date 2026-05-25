@@ -392,7 +392,7 @@ onActivated(async () => {
       </div>
       <NCollapse v-show="references.length > 0" :default-expanded-names="['refer_0']">
         <NCollapseItem
-          v-for="(reference, idx) of references" :key="reference.id" :title="t('knowledgeBase.referenceIndex', { index: idx + 1 })"
+          v-for="(reference, idx) of references" :key="reference.embeddingId" :title="t('knowledgeBase.referenceIndex', { index: idx + 1 })"
           :name="`refer_${idx}`"
         >
           {{ reference.text }}
