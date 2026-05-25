@@ -77,12 +77,12 @@ async function onSaveConfig() {
   try {
     await api.userMcpSaveOrUpdate(params)
     await loadMyUserMcpList(false)
-    ms.success('保存配置成功', {
+    ms.success(t('common.saveConfigSuccess'), {
       duration: 3000,
     })
   } catch (error) {
     console.error(error)
-    ms.error('保存配置失败，请稍后重试')
+    ms.error(t('common.saveConfigFailed'))
   } finally {
     showConfigModal.value = false
   }
@@ -124,10 +124,10 @@ watch(
         <div class="flex items-center flex-col mx-2">
           <NRadioGroup v-model:value="publicOrUser" name="displayStyleRadioGroup" size="small">
             <NRadio value="serversView">
-              服务与工具
+              {{ $t('chat.serviceTools') }}
             </NRadio>
             <NRadio value="userView">
-              我的工具
+              {{ $t('chat.myTools') }}
             </NRadio>
           </NRadioGroup>
         </div>
@@ -148,45 +148,45 @@ watch(
     <NModal v-model:show="showConfigModal" style="width: 90%; max-width: 1000px;" preset="card">
       <template #header>
         <h2 class="text-xl font-bold">
-          {{ selectedMcp.title }}-<span v-if="selectedTab === 'configTab'">配置</span><span
+          {{ selectedMcp.title }}-<span v-if="selectedTab === 'configTab'">{{ t('common.configuration') }}</span><span
             v-if="selectedTab === 'introTab'"
-          >介绍</span>
+          >{{ t('common.introduction') }}</span>
         </h2>
       </template>
       <NTabs type="line" justify-content="space-evenly" :value="selectedTab" @update:value="val => selectedTab = val">
-        <NTabPane name="introTab" tab="介绍">
+        <NTabPane name="introTab" :tab="t('common.introduction')">
           <div class="flex flex-col space-y-2 max-h-[720px] overflow-y-auto p-2">
             <div>
               <div class="w-full markdown-body" v-html="mdi.render(selectedMcp.remark)" />
             </div>
             <NAlert v-if="selectedMcp.website" :show-icon="false" type="info">
-              相关网址：{{ selectedMcp.website }}
+              {{ t('common.relatedWebsite') }}：{{ selectedMcp.website }}
             </NAlert>
           </div>
         </NTabPane>
-        <NTabPane name="configTab" tab="配置">
+        <NTabPane name="configTab" :tab="t('common.configuration')">
           <div class="flex flex-col space-y-1 max-h-[720px] overflow-y-auto">
             <NAlert v-if="selectedMcp.customizedParamDefinitions.length === 0" :show-icon="false" type="info">
-              该服务无需配置参数即可使用。
+              {{ t('common.thisServiceNoConfig') }}
             </NAlert>
             <div v-if="selectedMcp.customizedParamDefinitions.length > 0" class="flex flex-col space-y-2">
               <div class="font-bold text-base">
-                服务参数<span class="text-sm text-gray-500">（请参考[介绍]页签进行配置）</span>
+                {{ t('common.serviceParams') }}<span class="text-sm text-gray-500">{{ t('common.referToIntro') }}</span>
               </div>
               <NTable :bordered="false" :single-line="false">
                 <thead>
                   <tr>
-                    <th>参数</th>
-                    <th>值</th>
+                    <th>{{ t('common.title') }}</th>
+                    <th>{{ t('common.description') }}</th>
                     <th class="flex justify-center">
-                      敏感信息
+                      {{ t('common.sensitiveInfo') }}
                       <NTooltip trigger="hover">
                         <template #trigger>
                           <NIcon style="padding-top: 0.1rem">
                             <QuestionCircle16Regular />
                           </NIcon>
                         </template>
-                        <span>敏感信息会进行加密存储</span>
+                        <span>{{ t('common.sensitiveInfoTooltip') }}</span>
                       </NTooltip>
                     </th>
                   </tr>
@@ -199,12 +199,12 @@ watch(
                     <td>
                       <NInput
                         v-model:value="uninitParam.value" class="flex-1"
-                        :placeholder="`请输入变量值${uninitParam.name}`"
+                        :placeholder="`${t('common.pleaseEnterVariableValue')}${uninitParam.name}`"
                       />
                     </td>
                     <td class="flex justify-center">
-                      <span v-if="uninitParam.require_encrypt">是</span>
-                      <span v-if="!uninitParam.require_encrypt">否</span>
+                      <span v-if="uninitParam.require_encrypt">{{ t('common.yes') }}</span>
+                      <span v-if="!uninitParam.require_encrypt">{{ t('common.no') }}</span>
                     </td>
                   </tr>
                 </tbody>
@@ -212,20 +212,20 @@ watch(
             </div>
             <div class="pt-4 flex flex-col space-y-2">
               <div class="font-bold text-base">
-                状态
+                {{ $t('chat.status') }}
               </div>
               <NRadioGroup v-model:value="selectedUserMcp.isEnable" name="enableGroup">
                 <NRadio :value="true">
-                  启用
+                  {{ $t('chat.enable') }}
                 </NRadio>
                 <NRadio :value="false">
-                  暂存
+                  {{ $t('chat.draft') }}
                 </NRadio>
               </NRadioGroup>
             </div>
             <div class="flex justify-end p-2">
               <NButton type="primary" @click="onSaveConfig">
-                确定
+                {{ $t('common.confirm') }}
               </NButton>
             </div>
           </div>

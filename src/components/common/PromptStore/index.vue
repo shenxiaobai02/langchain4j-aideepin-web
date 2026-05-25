@@ -232,7 +232,7 @@ const createColumns = (): DataTableColumns<Chat.Prompt> => {
   ]
 }
 
-const columns = createColumns()
+const columns = computed(() => createColumns())
 
 const dataSource = computed(() => {
   return renderTemplate()
@@ -297,7 +297,7 @@ watch(
           <NInputGroup>
             <NInput v-model:value="searchValue" style="width: 100%" @keyup="search" />
             <NButton ghost @click="clickSearch">
-              搜索
+              {{ t('common.search') }}
             </NButton>
           </NInputGroup>
         </div>

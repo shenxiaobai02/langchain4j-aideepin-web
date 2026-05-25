@@ -173,7 +173,7 @@ watch(() => props.thinking, (thinking) => {
             v-if="thinkingContent" :default-expanded-names="['finalAnswer']" :expanded-names="expandedNames"
             @item-header-click="itemHeadClick"
           >
-            <NCollapseItem title="深度思考" name="thinking">
+            <NCollapseItem :title="$t('chat.thinking')" name="thinking">
               <TextComponent
                 ref="textRef" :inversion="inversion" :error="error" :text="thinkingContent"
                 :loading="thinking" :as-raw-text="asRawText"

@@ -6,6 +6,7 @@ import defaultAvatar from '@/assets/avatar.jpg'
 import { useAuthStore, useUserStore, useWfStore } from '@/store'
 import api from '@/api'
 import { emptyWorkflowInfo } from '@/utils/functions'
+import { t } from '@/locales'
 
 const saving = ref<boolean>(false)
 const tmpWorkflow = ref<Workflow.WorkflowInfo>(emptyWorkflowInfo())
@@ -18,7 +19,7 @@ const ms = useMessage()
 async function handleSave(event?: KeyboardEvent) {
   event?.stopPropagation()
   if (!tmpWorkflow.value.title) {
-    ms.error('标题不能为空', {
+    ms.error(t('common.titleCannotBeEmpty'), {
       duration: 2000,
     })
     return
@@ -30,10 +31,10 @@ async function handleSave(event?: KeyboardEvent) {
   const params = { uuid: tmpWorkflow.value.uuid, title: tmpWorkflow.value.title, remark: tmpWorkflow.value.remark, isPublic: tmpWorkflow.value.isPublic }
   try {
     if (!tmpWorkflow.value.uuid) {
-      const { data: wf } = await api.workflowAdd<Workflow.WorkflowInfo>(params)
+      const { data: wf } = await api.workflowAdd(params)
       wfStore.addWorkflowAndActive(wf)
     } else {
-      const { data: wf } = await api.workflowBaseInfoUpdate<Workflow.WorkflowInfo>(params)
+      const { data: wf } = await api.workflowBaseInfoUpdate(params)
       wfStore.updateBaseInfo(tmpWorkflow.value.uuid, wf)
     }
     tmpWorkflow.value = emptyWorkflowInfo()
@@ -47,19 +48,19 @@ async function handleSave(event?: KeyboardEvent) {
   } finally {
     saving.value = false
     wfStore.setShowCreateView(false, '')
-    ms.success('保存成功')
+    ms.success(t('common.saveSuccess'))
   }
 }
 
 async function onDelete() {
   if (!tmpWorkflow.value.uuid) {
-    ms.error('删除失败，uuid为空')
+    ms.error(t('common.deleteFailedUuidEmpty'))
     return
   }
   await api.workflowDel(tmpWorkflow.value.uuid)
   wfStore.deleteWorkflow(tmpWorkflow.value.uuid)
   wfStore.setShowCreateView(false, '')
-  ms.success('删除成功')
+  ms.success(t('common.deleteSuccess'))
 }
 
 const viewStyle = computed(() => {
@@ -76,11 +77,11 @@ const viewStyle = computed(() => {
 
 const title = computed(() => {
   if (viewStyle.value === 'create')
-    return '新增'
+    return t('common.create')
   else if (viewStyle.value === 'edit')
-    return '编辑'
+    return t('common.edit')
   else
-    return '查看'
+    return t('common.view')
 })
 
 onMounted(() => {
@@ -132,26 +133,26 @@ watch(() => wfStore.createOrEditWfUuid, (val) => {
                 </template>
               </NTag>
             </template>
-            节点
+            {{ t('common.node') }}
           </NTooltip>
         </NFlex>
       </NFlex>
       <NDivider v-show="viewStyle === 'read'" />
       <div v-show="viewStyle !== 'read'">
         <NFlex class="grow" justify="space-between" vertical>
-          <NFormItem label="标题" :show-feedback="false" :show-require-mark="true">
-            <NInput v-model:value="tmpWorkflow.title" type="text" size="large" placeholder="如：翻译" />
+          <NFormItem :label="t('common.title')" :show-feedback="false" :show-require-mark="true">
+            <NInput v-model:value="tmpWorkflow.title" type="text" size="large" :placeholder="t('common.title')" />
           </NFormItem>
-          <NFormItem label="备注" :show-feedback="false">
+          <NFormItem :label="t('common.remark')" :show-feedback="false">
             <NInput v-model:value="tmpWorkflow.remark" type="text" size="large" />
           </NFormItem>
-          <NFormItem label="是否公开" :show-feedback="false">
+          <NFormItem :label="t('common.isPublic')" :show-feedback="false">
             <NSwitch v-model:value="tmpWorkflow.isPublic">
               <template #checked>
-                是
+                {{ t('common.yes') }}
               </template>
               <template #unchecked>
-                否
+                {{ t('common.no') }}
               </template>
             </NSwitch>
           </NFormItem>
@@ -160,21 +161,21 @@ watch(() => wfStore.createOrEditWfUuid, (val) => {
               v-show="tmpWorkflow.uuid" type="primary" :loading="saving" :disabled="saving"
               @click="handleSave()"
             >
-              更新
+              {{ t('common.update') }}
             </NButton>
             <NButton
               v-show="!tmpWorkflow.uuid" type="primary" :loading="saving" :disabled="saving"
               @click="handleSave()"
             >
-              新增
+              {{ t('common.create') }}
             </NButton>
             <NPopconfirm placement="top" @positive-click.stop="onDelete">
               <template #trigger>
                 <NButton v-show="tmpWorkflow.uuid" :disabled="saving" type="error" ghost>
-                  删除
+                  {{ t('common.delete') }}
                 </NButton>
               </template>
-              删除确认
+              {{ t('common.deleteConfirm') }}
             </NPopconfirm>
           </div>
         </NFlex>

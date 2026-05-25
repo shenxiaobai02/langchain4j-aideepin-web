@@ -24,10 +24,10 @@ function handleDisplayChange(value: string) {
           @update:value="handleDisplayChange"
         >
           <NRadio value="publicView">
-            公开图片
+            {{ $t('gallery.publicImages') }}
           </NRadio>
           <NRadio value="favView">
-            我的点赞
+            {{ $t('gallery.myFavorites') }}
           </NRadio>
         </NRadioGroup>
       </div>

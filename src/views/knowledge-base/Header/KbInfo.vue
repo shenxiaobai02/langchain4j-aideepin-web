@@ -7,6 +7,7 @@ import { useKbStore } from '@/store'
 import { knowledgeBaseEmptyInfo } from '@/utils/functions'
 import defaultAvatar from '@/assets/avatar.jpg'
 import api from '@/api'
+import { t } from '@/locales'
 
 interface Props {
   showModal: boolean
@@ -44,14 +45,14 @@ watch(() => innerShow.value, (val) => {
 </script>
 
 <template>
-  <NModal v-model:show="innerShow" :title="knowledgeBase.title" style="width: 90%; max-width: 640px" preset="card">
+  <NModal v-model:show="innerShow" :title="knowledgeBase?.title || ''" style="width: 90%; max-width: 640px" preset="card">
     <NFlex vertical>
       <NFlex justify="space-between">
         <NTag size="large" :bordered="false" :color="{ color: '#ff000000' }">
-          {{ knowledgeBase.ownerName }}
+          {{ knowledgeBase?.ownerName || '' }}
           <template #avatar>
             <NAvatar
-              :src="`/api/user/avatar/${knowledgeBase.ownerUuid}`" size="large" :fallback-src="defaultAvatar"
+              :src="`/api/user/avatar/${knowledgeBase?.ownerUuid}`" size="large" :fallback-src="defaultAvatar"
               color="#ff0000000"
             />
           </template>
@@ -60,87 +61,86 @@ watch(() => innerShow.value, (val) => {
           <NTooltip trigger="hover">
             <template #trigger>
               <NTag size="medium" :bordered="false" round :color="{ color: '#ff000000' }">
-                {{ knowledgeBase.itemCount }}
+                {{ knowledgeBase?.itemCount || 0 }}
                 <template #icon>
                   <NIcon :component="Bookmarks" depth="2" />
                 </template>
               </NTag>
             </template>
-            知识点
+            {{ t('knowledgeBase.knowledgePoints') }}
           </NTooltip>
           <NTooltip trigger="hover">
             <template #trigger>
               <NTag size="medium" :bordered="false" round :color="{ color: '#ff000000' }">
-                {{ knowledgeBase.embeddingCount }}
+                {{ knowledgeBase?.embeddingCount || 0 }}
                 <template #icon>
                   <NIcon :component="VectorBeizer2" depth="2" />
                 </template>
               </NTag>
             </template>
-            向量
+            {{ t('knowledgeBase.vectors') }}
           </NTooltip>
           <NTag
+            v-if="knowledgeBase"
             size="medium" :bordered="false" round :color="{ color: '#ff000000' }" checkable
             @click="handleClickStar(knowledgeBase)"
           >
-            {{ knowledgeBase.starCount }}
+            {{ knowledgeBase?.starCount || 0 }}
             <template #icon>
-              <NIcon v-show="!kbStore.kbUuidToStarInfo.get(knowledgeBase.uuid)?.star" :component="Star24Regular" />
+              <NIcon v-show="!kbStore.kbUuidToStarInfo.get(knowledgeBase?.uuid)?.star" :component="Star24Regular" />
               <NIcon
-                v-show="kbStore.kbUuidToStarInfo.get(knowledgeBase.uuid)?.star" :component="Star24Filled"
+                v-show="kbStore.kbUuidToStarInfo.get(knowledgeBase?.uuid)?.star" :component="Star24Filled"
                 color="#eac54f"
               />
             </template>
           </NTag>
         </NFlex>
       </NFlex>
-      <NFlex>
+      <NFlex v-if="knowledgeBase">
         <NTooltip trigger="hover">
           <template #trigger>
             <NTag size="small" :bordered="false">
-              {{ knowledgeBase.isPublic ? '公开' : '私有' }}
+              {{ knowledgeBase.isPublic ? t('knowledgeBase.public') : t('knowledgeBase.private') }}
             </NTag>
           </template>
-          公开：所有人可见并使用；<br>
-          私有：仅创建者可见并使用。
+          {{ t('knowledgeBase.publicTooltip') }}
         </NTooltip>
         <NTooltip trigger="hover">
           <template #trigger>
             <NTag size="small" :bordered="false">
-              {{ knowledgeBase.isStrict ? '严格模式' : '宽松模式' }}
+              {{ knowledgeBase.isStrict ? t('knowledgeBase.strictMode') : t('knowledgeBase.looseMode') }}
             </NTag>
           </template>
-          严格模式：严格匹配知识库，知识库中如无搜索结果，直接返回无答案；<br>
-          宽松模式：知识库中如无搜索结果，则将用户提问传给LLM继续请求答案。
+          {{ t('knowledgeBase.strictModeTooltip') }}
         </NTooltip>
         <NTooltip trigger="hover">
           <template #trigger>
             <NTag size="small" :bordered="false">
-              {{ `最大招回数量：${knowledgeBase.retrieveMaxResults === 0 ? '-' : knowledgeBase.retrieveMaxResults}` }}
+              {{ `${t('knowledgeBase.maxRetrieveCountPrefix')}${knowledgeBase.retrieveMaxResults === 0 ? '-' : knowledgeBase.retrieveMaxResults}` }}
             </NTag>
           </template>
-          向量搜索时，召回的文档数量不能超过该值<br>
+          {{ t('knowledgeBase.maxRetrieveCountTooltip') }}
         </NTooltip>
         <NTooltip trigger="hover">
           <template #trigger>
             <NTag size="small" :bordered="false">
-              {{ `最小招回分数：${knowledgeBase.retrieveMinScore === 0 ? '-' : knowledgeBase.retrieveMinScore}` }}
+              {{ `${t('knowledgeBase.minRetrieveScorePrefix')}${knowledgeBase.retrieveMinScore === 0 ? '-' : knowledgeBase.retrieveMinScore}` }}
             </NTag>
           </template>
-          向量搜索时，召回的向量分数需大于该值
+          {{ t('knowledgeBase.minRetrieveScoreTooltip') }}
         </NTooltip>
       </NFlex>
       <NDivider />
-      <div>{{ knowledgeBase.remark }}</div>
+      <div>{{ knowledgeBase?.remark || '' }}</div>
     </NFlex>
     <template #footer>
-      <NPopconfirm placement="top" @positive-click="clearHistory(knowledgeBase)">
+      <NPopconfirm v-if="knowledgeBase" placement="top" @positive-click="clearHistory(knowledgeBase)">
         <template #trigger>
           <NButton size="small" text type="primary">
-            清除历史记录
+            {{ t('knowledgeBase.clearHistory') }}
           </NButton>
         </template>
-        删除后不可恢复，请谨慎操作
+        {{ t('knowledgeBase.deleteHistoryConfirm') }}
       </NPopconfirm>
     </template>
   </NModal>

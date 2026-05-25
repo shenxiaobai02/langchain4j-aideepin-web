@@ -319,6 +319,7 @@ async function createChatTask(userAudioUuid = '', userAudioUrl = '', audioDurati
         error: false,
         aiModelPlatform: appStore.selectedLLM.modelPlatform,
         attachmentUrls: [],
+        isRefMemoryEmbedding: false,
         isRefEmbedding: false,
         isRefGraph: false,
         audioPlayState: emptyAudioPlayState(),
@@ -326,6 +327,7 @@ async function createChatTask(userAudioUuid = '', userAudioUrl = '', audioDurati
       inversion: true,
       error: false,
       attachmentUrls: [],
+      isRefMemoryEmbedding: false,
       isRefEmbedding: false,
       isRefGraph: false,
       audioPlayState,
@@ -375,7 +377,7 @@ const searchOptions = computed(() => {
 const placeholder = computed(() => {
   if (isMobile.value)
     return t('chat.placeholderMobile')
-  return 'Shift + Enter = 换行 ；/ 开头显示提示词'
+  return t('chat.placeholder')
 })
 
 defineExpose({
@@ -409,7 +411,7 @@ defineExpose({
       </template>
     </NButton>
     <NModal :show="showAudioRecorderModal">
-      <NCard style="max-width: 600px" title="语音对话" size="huge" :bordered="false" role="dialog" aria-modal="true">
+      <NCard style="max-width: 600px" :title="$t('chat.voiceChat')" size="huge" :bordered="false" role="dialog" aria-modal="true">
         <AudioRecorder
           @recorded="handleAudioRecorded" @submitted="handleAudioSubmitted"
           @exit="showAudioRecorderModal = false"

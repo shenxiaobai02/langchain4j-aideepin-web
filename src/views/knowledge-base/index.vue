@@ -117,8 +117,8 @@ async function handleSubmit() {
       },
       errorCallback: (error) => {
         sseRequesting.value = false
-        ms.warning(`系统提示：${error}`)
-        qaRecord.answer = `系统提示：${error}`
+        ms.warning(`${t('knowledgeBase.systemPrompt')}: ${error}`)
+        qaRecord.answer = `${t('knowledgeBase.systemPrompt')}: ${error}`
         qaRecord.loading = false
         qaRecord.error = true
         kbStore.updateRecord(currKbUuid, qaRecord.uuid, qaRecord)
@@ -148,7 +148,7 @@ async function loadMoreMessage(callback?: Function) {
 
     if (data.records.length < pageSize) {
       loadedAll.value = true
-      ms.warning('没有更多了', {
+      ms.warning(t('common.noMoreData'), {
         duration: 3000,
       })
     }
@@ -182,7 +182,7 @@ function handleDelete(qaRecordUuid: string) {
     return
   dialog.warning({
     title: t('chat.deleteMessage'),
-    content: '提问及对应的答案会一起删除，继续执行？',
+    content: t('knowledgeBase.deleteConfirm'),
     positiveText: t('common.yes'),
     negativeText: t('common.no'),
     onPositiveClick: () => {
@@ -327,7 +327,7 @@ onActivated(async () => {
                 :inversion="true" :error="qaRecord.error" :loading="false" @delete="handleDelete(qaRecord.uuid)"
               />
               <Message
-                :date-time="qaRecord.createTime" :text="!!qaRecord.answer ? qaRecord.answer : '[无答案]'"
+                :date-time="qaRecord.createTime" :text="!!qaRecord.answer ? qaRecord.answer : t('knowledgeBase.noAnswer')"
                 :regenerate="false" type="text" :inversion="false" :error="qaRecord.error" :loading="qaRecord.loading"
                 :ai-model-platform="qaRecord.aiModelPlatform" @delete="handleDelete(qaRecord.uuid)"
               >
@@ -336,14 +336,14 @@ onActivated(async () => {
                     v-if="!!qaRecord.answer && !qaRecord.loading" size="tiny" text type="primary"
                     @click="handleReferenceClick(qaRecord.uuid)"
                   >
-                    引用
+                    {{ t('knowledgeBase.reference') }}
                   </NButton>
 
                   <NButton
                     v-if="!!qaRecord.answer && !qaRecord.loading" size="tiny" text type="primary"
                     @click="handleGraphClick(qaRecord.uuid)"
                   >
-                    图谱
+                    {{ t('knowledgeBase.graph') }}
                   </NButton>
                 </NFlex>
               </Message>
@@ -356,38 +356,43 @@ onActivated(async () => {
           <template #icon>
             <SvgIcon icon="ri:stop-circle-line" />
           </template>
-          停止请求
+          {{ t('knowledgeBase.stopRequest') }}
         </NButton>
       </div>
     </main>
     <footer :class="footerClass">
       <div class="w-full max-w-screen-xl m-auto">
-        <div class="flex items-center justify-between space-x-2">
-          <div class="w-48">
+        <div style="display: flex; align-items: center; gap: 12px; padding: 8px 0; position: relative; z-index: 1;">
+          <div style="position: relative; z-index: 2; flex-shrink: 0;">
             <LLMSelector />
           </div>
-          <NInput
-            ref="inputRef" v-model:value="prompt" type="textarea" :placeholder="placeholder"
-            :autosize="{ minRows: 1, maxRows: isMobile ? 4 : 8 }" @keypress="handleEnter"
-          />
-          <NButton type="primary" :disabled="buttonDisabled" @click="handleSubmit">
-            <template #icon>
-              <span class="dark:text-black">
-                <SvgIcon icon="ri:send-plane-fill" />
-              </span>
-            </template>
-          </NButton>
+          <div style="flex: 1; position: relative; z-index: 1; min-width: 0;">
+            <NInput
+              ref="inputRef" v-model:value="prompt" type="textarea" :placeholder="placeholder"
+              :autosize="{ minRows: 1, maxRows: isMobile ? 4 : 8 }" style="width: 100%;"
+              @keypress="handleEnter"
+            />
+          </div>
+          <div style="flex-shrink: 0;">
+            <NButton type="primary" :disabled="buttonDisabled" @click="handleSubmit">
+              <template #icon>
+                <span class="dark:text-black">
+                  <SvgIcon icon="ri:send-plane-fill" />
+                </span>
+              </template>
+            </NButton>
+          </div>
         </div>
       </div>
     </footer>
 
-    <NModal v-model:show="showReferenceModal" style="max-width: 80%;" preset="card" title="引用资料">
+    <NModal v-model:show="showReferenceModal" style="max-width: 80%;" preset="card" :title="t('knowledgeBase.referenceData')">
       <div v-show="references.length === 0">
-        无
+        {{ t('knowledgeBase.none') }}
       </div>
       <NCollapse v-show="references.length > 0" :default-expanded-names="['refer_0']">
         <NCollapseItem
-          v-for="(reference, idx) of references" :key="reference.id" :title="`引用${idx + 1}`"
+          v-for="(reference, idx) of references" :key="reference.id" :title="t('knowledgeBase.referenceIndex', { index: idx + 1 })"
           :name="`refer_${idx}`"
         >
           {{ reference.text }}
@@ -395,7 +400,7 @@ onActivated(async () => {
       </NCollapse>
     </NModal>
 
-    <NModal v-model:show="showRefGraphModal" display-directive="show" style="max-width: 80%;" preset="card" title="引用图谱">
+    <NModal v-model:show="showRefGraphModal" display-directive="show" style="max-width: 80%;" preset="card" :title="t('knowledgeBase.referenceGraph')">
       <RefGraph :qa-record-uuid="showRefGraphRecordUuid" />
     </NModal>
   </div>

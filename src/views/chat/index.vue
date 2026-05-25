@@ -333,7 +333,7 @@ async function loadMoreMessage(callback?: Function) {
 
     if (data.msgList.length < pageSize) {
       chatStore.updateConv(curConvUuid, { minMsgUuid: data.minMsgUuid, loadedAll: true })
-      ms.warning('没有更多了', {
+      ms.warning(t('common.noMoreData'), {
         duration: 3000,
       })
     } else {

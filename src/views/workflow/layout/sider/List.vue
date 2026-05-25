@@ -100,17 +100,17 @@ onMounted(() => {
 
 <template>
   <NTabs v-model:value="selectedType" tab-class="h-10" pane-class="h-full" type="line" justify-content="space-evenly">
-    <NTabPane name="mine" tab="我的" size="small">
+    <NTabPane name="mine" :tab="$t('common.my')" size="small">
       <div class="flex flex-col space-y-2" :style="`height:${innerHeight}px`">
         <div class="px-4">
           <NButton dashed block @click="handleAdd">
-            新建应用
+            {{ $t('workflow.createApp') }}
           </NButton>
         </div>
         <SubList :list="myWorkflows" :active-wf-uuid="activeUuid" />
       </div>
     </NTabPane>
-    <NTabPane name="public" tab="公开">
+    <NTabPane name="public" :tab="$t('gallery.publicImages')">
       <SubList :list="publicWorkflows" :active-wf-uuid="activeUuid" />
     </NTabPane>
   </NTabs>

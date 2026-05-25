@@ -156,7 +156,7 @@ async function loadMoreMessage(event: any) {
     if (data.records.length === 0) {
       aiSearchStore.setLoadedAll()
       loadingms.destroy()
-      loadingms = ms.warning('没有更多了', {
+      loadingms = ms.warning(t('common.noMoreData'), {
         duration: 1000,
       })
     }

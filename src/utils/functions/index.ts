@@ -264,6 +264,7 @@ export function emptyChatMessage(): Chat.ChatMessage {
       children: [],
       aiModelPlatform: '',
       attachmentUrls: [],
+      isRefMemoryEmbedding: false,
       isRefEmbedding: false,
       isRefGraph: false,
       audioPlayState: emptyAudioPlayState(),
@@ -271,6 +272,7 @@ export function emptyChatMessage(): Chat.ChatMessage {
     }], // for reply
     aiModelPlatform: '',
     attachmentUrls: [],
+    isRefMemoryEmbedding: false,
     isRefEmbedding: false,
     isRefGraph: false,
     audioPlayState: emptyAudioPlayState(),

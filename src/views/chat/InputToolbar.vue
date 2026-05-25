@@ -219,29 +219,29 @@ watch(isDeepSeekThinking, async (newVal) => {
         @click="toogleThinking"
       >
         <template v-if="isReasoner && isThinkingClosable">
-          深度思考
+          {{ $t('chat.thinking') }}
           <NSwitch :value="currConv.isEnableThinking" size="small" />
         </template>
         <template v-if="isReasoner && !isThinkingClosable">
           <NPopover trigger="hover">
             <template #trigger>
               <div>
-                深度思考
+                {{ $t('chat.thinking') }}
                 <NSwitch :value="true" size="small" disabled />
               </div>
             </template>
-            <span> 模型不支持关闭深度思考功能 </span>
+            <span> {{ $t('chat.thinkingNotClosable') }} </span>
           </NPopover>
         </template>
         <template v-if="!isReasoner">
           <NPopover trigger="hover">
             <template #trigger>
               <div>
-                深度思考
+                {{ $t('chat.thinking') }}
                 <NSwitch :value="false" size="small" disabled />
               </div>
             </template>
-            <span> 模型不支持深度思考功能 </span>
+            <span> {{ $t('chat.thinkingNotSupported') }} </span>
           </NPopover>
         </template>
       </div>
@@ -251,18 +251,18 @@ watch(isDeepSeekThinking, async (newVal) => {
         @click="toogleWebSearch"
       >
         <template v-if="appStore.selectedLLM.isSupportWebSearch">
-          联网搜索
+          {{ $t('chat.webSearch') }}
           <NSwitch :value="currConv.isEnableWebSearch" size="small" />
         </template>
         <template v-if="!appStore.selectedLLM.isSupportWebSearch">
           <NPopover trigger="hover">
             <template #trigger>
               <div>
-                联网搜索
+                {{ $t('chat.webSearch') }}
                 <NSwitch :value="false" size="small" disabled />
               </div>
             </template>
-            <span> 模型不支持联网搜索功能 </span>
+            <span> {{ $t('chat.webSearchNotSupported') }} </span>
           </NPopover>
         </template>
       </div>
@@ -298,19 +298,19 @@ watch(isDeepSeekThinking, async (newVal) => {
         class="overflow-hidden rounded border hover:border-green-600 p-1 h-8 cursor-pointer"
         @click="handleKnowledgeModalShow"
       >
-        <span class="text-xs text-green-600">知识库：</span>
+        <span class="text-xs text-green-600">{{ $t('chat.knowledgeBase') }}：</span>
         <template v-for="knolwedge in currConv.convKnowledgeList" :key="knolwedge.uuid">
           <span class="text-xs mr-1">{{ knolwedge.title }}</span>
         </template>
-        <span v-if="currConv.convKnowledgeList.length === 0" class="text-xs mr-1">无</span>
+        <span v-if="currConv.convKnowledgeList.length === 0" class="text-xs mr-1">{{ $t('chat.none') }}</span>
       </div>
       <div class="flex-1 overflow-hidden rounded border hover:border-green-600 cursor-pointer p-1 h-8" @click="handleMcpModalShow">
-        <span class="text-xs text-green-600">工具：</span>
+        <span class="text-xs text-green-600">{{ $t('chat.tools') }}：</span>
         <template v-for="userMcp in mcpStore.myUserMcpList" :key="userMcp.uuid">
           <span v-if="currConv.mcpIds.includes(userMcp.mcpInfo.id)" class="text-xs mr-1">{{ userMcp.mcpInfo.title
           }}</span>
         </template>
-        <span v-if="currConv.mcpIds.length === 0" class="text-xs mr-1">无</span>
+        <span v-if="currConv.mcpIds.length === 0" class="text-xs mr-1">{{ $t('chat.none') }}</span>
       </div>
     </div>
     <NList hoverable show-divider>
@@ -326,11 +326,11 @@ watch(isDeepSeekThinking, async (newVal) => {
     </NList>
     <NModal
       v-model:show="knowledgeModalShow" display-directive="show" style="width: 90%; max-width: 800px"
-      preset="card" title="配置会话使用的知识库"
+      preset="card" :title="$t('chat.knowledgeBaseConfig')"
     >
       <ConvKnowledgeSelector :tmp-save="false" :conversation="currConv" @submitted="handleKnowledgeSave" />
     </NModal>
-    <NModal v-model:show="mcpModalShow" style="width: 90%; max-width: 640px" preset="card" title="配置会话使用的服务与工具">
+    <NModal v-model:show="mcpModalShow" style="width: 90%; max-width: 640px" preset="card" :title="$t('chat.mcpConfigTitle')">
       <NCheckboxGroup v-model:value="tmpMcpIds" class="my-2 flex flex-wrap space-x-2">
         <NCheckbox
           v-for="userMcp in mcpStore.myUserMcpList" :key="userMcp.uuid" :value="userMcp.mcpInfo.id"

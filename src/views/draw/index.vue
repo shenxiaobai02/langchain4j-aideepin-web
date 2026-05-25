@@ -12,6 +12,7 @@ import { useAppStore, useAuthStore, useDrawStore } from '@/store'
 import api from '@/api'
 import { debounce } from '@/utils/functions/debounce'
 import { changeFileUrlToUuid } from '@/utils/functions'
+import { t } from '@/locales'
 
 const appStore = useAppStore()
 const ms = useMessage()
@@ -36,13 +37,13 @@ async function loadNextPage(callback: Function) {
   loaddingBar.start()
   loading.value = true
   try {
-    const { data } = await api.fetchDraws<Chat.DrawListResp>(nextPageMaxImageId.value, 20)
+    const { data } = await api.fetchDraws(nextPageMaxImageId.value, 20)
     if (data.draws.length > 0) {
       nextPageMaxImageId.value = data.minId
       drawStore.unshiftDraws(data.draws)
     } else {
       loadedAll.value = true
-      ms.warning('没有更多了', {
+      ms.warning(t('common.noMoreData'), {
         duration: 3000,
       })
     }

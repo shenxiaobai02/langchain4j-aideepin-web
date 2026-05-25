@@ -125,39 +125,39 @@ const handleDeleteDebounce = debounce(handleDelete, 600)
       <div class="flex flex-col space-y-3">
         <div>
           <div class="font-bold">
-            名称
+            {{ $t('chat.name') }}
           </div>
-          <NInput v-model:value="tmpConv.title" type="text" size="large" placeholder="如：李白" />
+          <NInput v-model:value="tmpConv.title" type="text" size="large" :placeholder="$t('chat.namePlaceholder')" />
         </div>
         <div>
           <div class="font-bold">
-            备注
+            {{ $t('chat.remark') }}
           </div>
           <NInput
-            v-model:value="tmpConv.remark" type="textarea" placeholder="如：多年写诗经验"
+            v-model:value="tmpConv.remark" type="textarea" :placeholder="$t('chat.remarkPlaceholder')"
             :autosize="{ minRows: 1, maxRows: 10 }"
           />
         </div>
         <div>
           <div class="font-bold">
-            角色设定
+            {{ $t('chat.roleSetting') }}
           </div>
           <NInput
-            v-model:value="tmpConv.aiSystemMessage" type="textarea" placeholder="如：你是唐朝的李白，诗才出众，被誉为诗仙"
+            v-model:value="tmpConv.aiSystemMessage" type="textarea" :placeholder="$t('chat.roleSettingPlaceholder')"
             :autosize="{ minRows: 1, maxRows: 10 }"
           />
         </div>
         <div>
           <div class="font-bold">
-            深度思考
+            {{ $t('chat.thinking') }}
             <NTooltip trigger="hover">
               <template #trigger>
                 <NIcon style="margin-top: 0.2rem">
                   <QuestionCircle16Regular />
                 </NIcon>
               </template>
-              <span>当选择的模型支持深度思考时，启用或关闭该功能<br></span>
-              <span>注意：部分模型如deepseek-reasoner不支持关闭该功能</span>
+              <span>{{ $t('chat.thinkingTooltip1') }}<br></span>
+              <span>{{ $t('chat.thinkingTooltip2') }}</span>
             </NTooltip>
           </div>
           <NRadioGroup
@@ -165,23 +165,23 @@ const handleDeleteDebounce = debounce(handleDelete, 600)
             size="small" @update:value="(checked) => tmpConv.isEnableThinking = checked"
           >
             <NRadio :value="false">
-              关闭
+              {{ $t('common.cancel') }}
             </NRadio>
             <NRadio :value="true">
-              启用
+              {{ $t('common.confirm') }}
             </NRadio>
           </NRadioGroup>
         </div>
         <div class="flex flex-col space-y-2">
           <div class="flex space-x-2 font-bold">
-            <span>知识库</span>
+            <span>{{ $t('chat.knowledgeBase') }}</span>
             <NButton type="primary" size="tiny" text tag="a" @click="knowledgeModalShow = !knowledgeModalShow">
-              添加更多知识库
+              {{ $t('chat.addKnowledge') }}
             </NButton>
           </div>
           <div v-if="!knowledgeModalShow">
             <div v-if="tmpConv.convKnowledgeList.length === 0" class="pl-6">
-              暂无数据
+              {{ $t('common.noData') }}
             </div>
             <NTag
               v-for="convKnowledge in tmpConv.convKnowledgeList" :key="convKnowledge.uuid" closable class="mr-2"
@@ -199,17 +199,17 @@ const handleDeleteDebounce = debounce(handleDelete, 600)
         </div>
         <div class="flex flex-col space-y-2">
           <div class="flex space-x-2 font-bold">
-            服务与工具(MCP)
+            {{ $t('chat.mcp') }}
             <NTooltip trigger="hover">
               <template #trigger>
                 <NIcon style="margin-top: 0.2rem">
                   <QuestionCircle16Regular />
                 </NIcon>
               </template>
-              <span>选中项表示本角色可能会用到该服务中的各种工具</span>
+              <span>{{ $t('chat.mcpTooltip') }}</span>
             </NTooltip>
             <NButton type="primary" size="tiny" text tag="a" @click="gotoMcp">
-              去启用更多AI工具
+              {{ $t('chat.enableMoreTools') }}
             </NButton>
           </div>
           <NCheckboxGroup v-model:value="tmpConv.mcpIds" class="flex flex-wrap space-x-2">
@@ -221,7 +221,7 @@ const handleDeleteDebounce = debounce(handleDelete, 600)
         </div>
         <div class="flex flex-col space-y-2">
           <div class="flex space-x-2 font-bold">
-            AI回复内容格式
+            {{ $t('chat.aiResponseFormat') }}
             <NTooltip trigger="hover">
               <template #trigger>
                 <NIcon style="margin-top: 0.2rem">
@@ -229,10 +229,10 @@ const handleDeleteDebounce = debounce(handleDelete, 600)
                 </NIcon>
               </template>
               <span>
-                自动：AI的回复内容格式跟用户一致，<br>
-                如用户以文字输入，则AI会以文字回复，如用户以语音输入，则AI以语音回复<br>
-                文字：AI以文字回复<br>
-                语音：AI以语音回复
+                {{ $t('chat.aiResponseFormatTooltip1') }}<br>
+                {{ $t('chat.aiResponseFormatTooltip2') }}<br>
+                {{ $t('chat.aiResponseFormatTooltip3') }}<br>
+                {{ $t('chat.aiResponseFormatTooltip4') }}
               </span>
             </NTooltip>
           </div>
@@ -241,19 +241,19 @@ const handleDeleteDebounce = debounce(handleDelete, 600)
             size="small" @update:value="(checked) => tmpConv.answerContentType = checked"
           >
             <NRadio :value="1">
-              自动
+              {{ $t('chat.auto') }}
             </NRadio>
             <NRadio :value="2">
-              文字
+              {{ $t('chat.text') }}
             </NRadio>
             <NRadio :value="3">
-              语音
+              {{ $t('chat.voice') }}
             </NRadio>
           </NRadioGroup>
         </div>
         <div class="flex flex-col space-y-2">
           <div class="flex space-x-2 font-bold">
-            是否自动播放AI的回复语音
+            {{ $t('chat.autoPlayVoice') }}
             <NTooltip trigger="hover">
               <template #trigger>
                 <NIcon style="margin-top: 0.2rem">
@@ -261,18 +261,18 @@ const handleDeleteDebounce = debounce(handleDelete, 600)
                 </NIcon>
               </template>
               <span>
-                当AI回复格式是语音时，是否需要自动播放内容
+                {{ $t('chat.autoPlayVoiceTooltip') }}
               </span>
             </NTooltip>
           </div>
           <NCheckbox
-            :checked="tmpConv.isAutoplayAnswer" label="是"
+            :checked="tmpConv.isAutoplayAnswer" :label="$t('common.confirm')"
             @update:checked="(checked) => tmpConv.isAutoplayAnswer = checked"
           />
         </div>
         <div class="flex flex-col space-y-2">
           <div class="flex space-x-2 font-bold">
-            音色选择
+            {{ $t('chat.voiceSelection') }}
             <NTooltip trigger="hover">
               <template #trigger>
                 <NIcon style="margin-top: 0.2rem">
@@ -280,12 +280,12 @@ const handleDeleteDebounce = debounce(handleDelete, 600)
                 </NIcon>
               </template>
               <span>
-                指定AI语音回复时所使用的音色
+                {{ $t('chat.voiceSelectionTooltip') }}
               </span>
             </NTooltip>
           </div>
           <div v-if="appStore.ttsSetting.synthesizer_side === 'client'">
-            当前音色来自于浏览器，无需指定
+            {{ $t('chat.voiceFromBrowser') }}
           </div>
           <NRadioGroup
             v-else-if="appStore.availableVoices.length > 0" :value="tmpConv.audioConfig.voice.param_name"

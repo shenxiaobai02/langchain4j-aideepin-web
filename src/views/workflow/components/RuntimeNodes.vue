@@ -6,6 +6,7 @@ import { getIconByComponentName, getIconClassByComponentName } from '@/utils/wor
 import { useAuthStore, useWfStore } from '@/store'
 import { getRealFileUrl } from '@/utils/functions'
 import TextComponent from '@/views/chat/components/Message/Text.vue'
+import { t } from '@/locales'
 
 interface Props {
   nodes: Workflow.WfRuntimeNode[]
@@ -24,10 +25,10 @@ const prologue = computed(() => {
 <template>
   <div>
     <div v-if="errorMsg" class="py-2 text-red-500">
-      错误：{{ errorMsg }}
+      {{ t('workflow.error') }}：{{ errorMsg }}
     </div>
     <div v-else-if="nodes.length === 0" class="text-center py-2 text-neutral-400">
-      无内容
+      {{ t('common.noContent') }}
     </div>
     <div v-show="prologue" class="p-2">
       {{ prologue }}
@@ -43,23 +44,23 @@ const prologue = computed(() => {
           :icon="getIconByComponentName(node.wfComponent.name)"
         />
         <div class="text-base">
-          {{ node.nodeTitle || '找不到节点标题' }}
+          {{ node.nodeTitle || t('workflow.nodeTitleNotFound') }}
         </div>
       </div>
       <div class="flex flex-col space-y-2">
         <div class="text-base border-b border-gray-200 py-1">
-          输入
+          {{ t('workflow.input') }}
         </div>
         <div v-for="(content, name) in node.input" :key="`input_${name}`" class="flex">
           <div class="min-w-24 pr-2">
             {{ name }}
           </div>
           <div>
-            {{ content.value || '无内容' }}
+            {{ content.value || t('common.noContent') }}
           </div>
         </div>
         <div class="text-base border-b border-gray-200 py-1">
-          输出
+          {{ t('workflow.output') }}
         </div>
         <div v-for="(content, name) in node.output" :key="`onput_${name}`" class="flex">
           <template v-if="content.type === 4">
@@ -75,7 +76,7 @@ const prologue = computed(() => {
               {{ name }}
             </div>
             <div>
-              <TextComponent :inversion="false" :text="content.value || '无内容'" :as-raw-text="false" />
+              <TextComponent :inversion="false" :text="content.value || t('common.noContent')" :as-raw-text="false" />
             </div>
           </template>
         </div>

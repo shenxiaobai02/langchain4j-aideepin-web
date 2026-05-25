@@ -5,6 +5,7 @@ import { NButton, NLayoutSider } from 'naive-ui'
 import List from './List.vue'
 import { useAppStore } from '@/store'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
+import { t } from '@/locales'
 
 const appStore = useAppStore()
 
@@ -61,7 +62,7 @@ onMounted(async () => {
         <List class="flex-1 min-h-0 pb-4" />
         <div class="p-4">
           <NButton dashed block @click="$router.push({ name: 'KnowledgeBaseManage' })">
-            管理我的知识库
+            {{ t('knowledgeBase.manageMyKnowledgeBases') }}
           </NButton>
         </div>
       </main>

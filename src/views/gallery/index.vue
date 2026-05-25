@@ -6,6 +6,7 @@ import Header from './Header.vue'
 import { useGalleryStore } from '@/store'
 import api from '@/api'
 import { debounce } from '@/utils/functions/debounce'
+import { t } from '@/locales'
 
 const ms = useMessage()
 const loaddingBar = useLoadingBar()
@@ -39,7 +40,7 @@ async function loadNextPublicPage() {
       galleryStore.appendPublicDraws(data.draws)
     } else {
       loadedPublicAll.value = true
-      ms.warning('没有更多了', {
+      ms.warning(t('common.noMoreData'), {
         duration: 3000,
       })
     }
@@ -70,7 +71,7 @@ async function loadNextStarPage() {
       galleryStore.appendStarDraws(data.draws)
     } else {
       loadedFavAll.value = true
-      ms.warning('没有更多了', {
+      ms.warning(t('common.noMoreData'), {
         duration: 3000,
       })
     }

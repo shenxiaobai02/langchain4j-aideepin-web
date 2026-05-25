@@ -146,10 +146,10 @@ function toggleRecording() {
     />
     <AudioWaveIcon v-if="recording" class="cursor-pointer" placeholder="对话中" @click="toggleRecording" />
     <div v-if="!recording" class="text-sm text-gray-500">
-      点击开始对话
+      {{ $t('chat.startVoiceChat') }}
     </div>
     <div v-if="recording" class="text-sm text-gray-500">
-      对话中({{ recordingDuration / 1000 }}秒)，点击图标结束
+      {{ $t('chat.recording') }}({{ recordingDuration / 1000 }}{{ $t('chat.seconds') }}), {{ $t('chat.clickToEnd') }}
     </div>
     <div v-if="errorMsg" class="text-sm text-red-500">
       {{ errorMsg }}

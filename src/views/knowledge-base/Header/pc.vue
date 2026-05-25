@@ -3,12 +3,13 @@ import { ref } from 'vue'
 import { HoverButton, SvgIcon } from '@/components/common'
 import { knowledgeBaseEmptyInfo } from '@/utils/functions'
 import KbInfo from '@/views/knowledge-base/Header/KbInfo.vue'
+import { t } from '@/locales'
 
 interface Props {
-  knowledgeBase: KnowledgeBase.Info
+  knowledgeBase: KnowledgeBase.Info | null
 }
 withDefaults(defineProps<Props>(), {
-  knowledgeBase: () => knowledgeBaseEmptyInfo(),
+  knowledgeBase: null,
 })
 const showEditModal = ref(false)
 
@@ -32,13 +33,18 @@ function showOrCloseModal(show: boolean) {
         </p>
       </div>
       <div class="flex items-center space-x-2">
-        <HoverButton @click="openEditView()">
+        <HoverButton :tooltip="t('knowledgeBase.viewInfo')" @click="openEditView()">
           <span class="text-xl">
             <SvgIcon icon="si:align-left-detailed-line" />
           </span>
         </HoverButton>
       </div>
     </div>
-    <KbInfo v-if="knowledgeBase && knowledgeBase.uuid" :show-modal="showEditModal" :knowledge-base="knowledgeBase" @showModal="showOrCloseModal" />
+    <KbInfo
+      v-if="showEditModal"
+      :show-modal="showEditModal"
+      :knowledge-base="knowledgeBase || knowledgeBaseEmptyInfo()"
+      @showModal="showOrCloseModal"
+    />
   </header>
 </template>

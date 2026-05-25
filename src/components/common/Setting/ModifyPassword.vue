@@ -45,20 +45,20 @@ async function handleModifyPassword() {
   <div class="p-4 space-y-5 min-h-[200px]">
     <div class="space-y-6">
       <div class="flex items-center space-x-4">
-        <span class="flex-shrink-0 w-[100px]">密码</span>
-        <NInput v-model:value="oldPassword" type="password" placeholder="密码" show-password-on="click" />
+        <span class="flex-shrink-0 w-[100px]">{{ $t('setting.password') }}</span>
+        <NInput v-model:value="oldPassword" type="password" :placeholder="$t('setting.password')" show-password-on="click" />
       </div>
       <div class="flex items-center space-x-4">
-        <span class="flex-shrink-0 w-[100px]">新的密码</span>
+        <span class="flex-shrink-0 w-[100px]">{{ $t('setting.newPassword') }}</span>
         <NInput
-          v-model:value="newPassword" type="password" placeholder="新的密码" show-password-on="click"
+          v-model:value="newPassword" type="password" :placeholder="$t('setting.newPassword')" show-password-on="click"
           :status="confirmPasswordStatus"
         />
       </div>
       <div class="flex items-center space-x-4">
-        <span class="flex-shrink-0 w-[100px]">新的密码<br>（重复）</span>
+        <span class="flex-shrink-0 w-[100px]">{{ $t('setting.newPassword') }}<br>{{ $t('chat.repeat') }}</span>
         <NInput
-          v-model:value="confirmNewPassword" type="password" placeholder="确认密码" show-password-on="click"
+          v-model:value="confirmNewPassword" type="password" :placeholder="$t('setting.confirmPassword')" show-password-on="click"
           :status="confirmPasswordStatus"
         />
       </div>
@@ -73,7 +73,7 @@ async function handleModifyPassword() {
           type="primary" :disabled="loading || newPassword !== confirmNewPassword" :loading="loading"
           @click="handleModifyPassword"
         >
-          修改密码
+          {{ $t('setting.modifyPassword') }}
         </NButton>
       </div>
     </div>

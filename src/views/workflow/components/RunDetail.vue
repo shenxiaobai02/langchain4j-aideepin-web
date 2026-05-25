@@ -48,7 +48,7 @@ const errorMsg = ref<string>('')
 const currWfUuid = props.workflow.uuid
 console.log('instance list currWfUuid', currWfUuid)
 const showCurrentExecution = ref<boolean>(false)
-const tabObj = ref<TabObj>({ name: 'runtimes', defaultTab: '流程执行详情', tab: '流程执行详情 ↓' })
+const tabObj = ref<TabObj>({ name: 'runtimes', defaultTab: t('common.executionDetail'), tab: `${t('common.executionDetail')} ↓` })
 const fileListLength = ref(0)
 const uploadRef = ref<UploadInst | null>(null)
 const uploadedFileUuids = ref<string[]>([])
@@ -89,7 +89,7 @@ async function run() {
 
   for (const input of userInputs.value) {
     if (input.required && input.content.type === 4 && input.content.value === null && fileListLength.value === 0) {
-      ms.warning('请上传文件')
+      ms.warning(t('workflow.uploadFileRequired'))
       return
     }
   }
@@ -106,7 +106,7 @@ async function run() {
 
   if (userInputs.value.some(input => input.required && input.content.value === null)) {
     console.log('请输入所有必填参数')
-    ms.warning('请输入所有必填参数')
+    ms.warning(t('workflow.fillRequiredFields'))
     return
   }
 
@@ -127,7 +127,7 @@ async function run() {
       signal: controller.signal,
       startCallback: (wfRuntimeJson) => {
         if (!wfRuntimeJson) {
-          ms.error('启动失败')
+          ms.error(t('workflow.startFailed'))
           return
         }
         const wfRuntime = JSON.parse(wfRuntimeJson) as Workflow.WorkflowRuntime
@@ -197,14 +197,14 @@ async function run() {
           resetInputs()
           wfStore.updateSuccess(currWfUuid, wfRuntimeUuid.value, chunk)
           runtimeErrorMsg.value = ''
-          ms.success('执行成功')
+          ms.success(t('workflow.executionSuccess'))
           emit('runDone')
         })
       },
       errorCallback: (error) => {
         submitting.value = false
         resetInputs()
-        ms.error(`系统提示：${error}`)
+        ms.error(`${t('knowledgeBase.systemPrompt')}: ${error}`)
         wfStore.updateErrorMsg(currWfUuid, wfRuntimeUuid.value, error)
         runtimeErrorMsg.value = error || ''
         emit('runError', error)
@@ -226,7 +226,7 @@ async function resume() {
     },
     )
   } catch (e) {
-    ms.error(`系统提示：${e}`)
+    ms.error(`${t('knowledgeBase.systemPrompt')}: ${e}`)
   } finally {
     humanFeedback.value = false
     humanFeedbackTip.value = ''
@@ -301,7 +301,7 @@ onUnmounted(() => {
                 <template #icon>
                   <SvgIcon icon="ri:stop-circle-line" />
                 </template>
-                停止请求
+                {{ t('knowledgeBase.stopRequest') }}
               </NButton>
             </div>
           </div>
@@ -313,42 +313,49 @@ onUnmounted(() => {
     </div>
     <div class="flex flex-col items-center justify-between space-y-2 max-h-[300px] overflow-y-auto">
       <template v-if="!humanFeedback">
-        <div v-for="(userInput, idx) in userInputs" :key="`${idx}_${userInput.name}`" class="w-full flex">
-          <div class="min-w-24">
-            {{ userInput.content.title }}
+        <div class="w-full flex items-center gap-3 mb-2">
+          <div v-for="(userInput, idx) in userInputs" :key="`${idx}_${userInput.name}`" class="flex-1 flex items-center gap-3" style="flex: 1;">
+            <div class="min-w-[80px] flex-shrink-0 text-right">
+              {{ t(userInput.content.title) || userInput.content.title }}
+            </div>
+            <div class="flex-1 min-w-0">
+              <!-- 文本 -->
+              <NInput
+                v-if="userInput.content.type === 1" v-model:value="userInput.content.value" type="textarea"
+                :autosize="{ minRows: 1, maxRows: 5 }" class="w-full"
+                :placeholder="t('workflow.pleaseInput')"
+              />
+              <!-- 数字 -->
+              <NInputNumber v-if="userInput.content.type === 2" v-model:value="userInput.content.value" />
+              <!-- 下拉列表 -->
+              <div v-if="userInput.content.type === 3" />
+              <!-- 文件列表 -->
+              <NUpload
+                v-if="userInput.content.type === 4" ref="uploadRef" multiple directory-dnd action="/api/file/upload"
+                :default-upload="false"
+                :max="startNode?.inputConfig.user_inputs.find(item => item.uuid === userInput.uuid)?.limit || 10"
+                :headers="headers" @update:file-list="handleFileListChange" @finish="onUploadFinish"
+                @change="onUploadChange"
+              >
+                <NUploadDragger>
+                  <NText style="font-size: 16px">
+                    {{ t('workflow.uploadHint') }}
+                  </NText>
+                  <NP depth="2" style="margin: 4px 0 0 0">
+                    {{ t('workflow.fileFormat') }}
+                  </NP>
+                </NUploadDragger>
+              </NUpload>
+              <!-- 布尔值 -->
+              <NSwitch v-if="userInput.content.type === 5" v-model:value="userInput.content.value" />
+            </div>
           </div>
-          <!-- 文本 -->
-          <NInput
-            v-if="userInput.content.type === 1" v-model:value="userInput.content.value" type="textarea"
-            :autosize="{ minRows: 1, maxRows: 5 }"
-          />
-          <!-- 数字 -->
-          <NInputNumber v-if="userInput.content.type === 2" v-model:value="userInput.content.value" />
-          <!-- 下拉列表 -->
-          <div v-if="userInput.content.type === 3" />
-          <!-- 文件列表 -->
-          <NUpload
-            v-if="userInput.content.type === 4" ref="uploadRef" multiple directory-dnd action="/api/file/upload"
-            :default-upload="false"
-            :max="startNode?.inputConfig.user_inputs.find(item => item.uuid === userInput.uuid)?.limit || 10"
-            :headers="headers" @update:file-list="handleFileListChange" @finish="onUploadFinish"
-            @change="onUploadChange"
-          >
-            <NUploadDragger>
-              <NText style="font-size: 16px">
-                点击或者拖动文件到该区域来上传
-              </NText>
-              <NP depth="2" style="margin: 4px 0 0 0">
-                文件格式: TXT、PDF、DOC、DOCX、XLS、XLXS、PPT、PPTX；文件大小：不超过10M
-              </NP>
-            </NUploadDragger>
-          </NUpload>
-          <!-- 布尔值 -->
-          <NSwitch v-if="userInput.content.type === 5" v-model:value="userInput.content.value" />
-        </div>
-        <div class="w-full flex justify-end">
-          <NButton type="primary" :disabled="submitting" :loading="submitting" @click="run">
-            提交
+          <NButton class="flex-none" type="primary" :disabled="submitting" :loading="submitting" @click="run">
+            <template #icon>
+              <span class="dark:text-black">
+                <SvgIcon icon="ri:send-plane-fill" />
+              </span>
+            </template>
           </NButton>
         </div>
       </template>
@@ -357,18 +364,18 @@ onUnmounted(() => {
         <div class="flex flex-col p-2 w-full space-y-2">
           <div class="flex bg-gray-100 px-2 py-1 rounded-md">
             <div class="text-base text-red-500">
-              流程已暂停，等待用户输入中...
+              {{ t('workflow.waitingForInput') }}
             </div>
           </div>
           <div class="flex flex-col w-full">
             <div v-if="humanFeedbackTip" class="text-sm leading-8">
-              提示：{{ humanFeedbackTip }}
+              {{ t('workflow.hint') }}：{{ humanFeedbackTip }}
             </div>
-            <NInput v-model:value="humanFeedbackContent" type="textarea" :autosize="{ minRows: 2, maxRows: 5 }" />
+            <NInput v-model:value="humanFeedbackContent" type="textarea" :autosize="{ minRows: 2, maxRows: 5 }" class="w-full" />
           </div>
-          <div class="flex justify-end">
+          <div class="flex justify-end mt-4">
             <NButton type="primary" @click="resume">
-              提交
+              {{ t('common.submit') }}
             </NButton>
           </div>
         </div>

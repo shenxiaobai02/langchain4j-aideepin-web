@@ -4,6 +4,7 @@ import { NButton, NPagination, useLoadingBar, useMessage } from 'naive-ui'
 import { useMcpStore } from '@/store'
 import api from '@/api'
 import { debounce } from '@/utils/functions/debounce'
+import { t } from '@/locales'
 
 const emit = defineEmits<Emit>()
 const ms = useMessage()
@@ -29,7 +30,7 @@ async function loadMcpPage(page: number) {
   mcpStore.setLoading(true)
   try {
     if (page > 1000) {
-      ms.warning('超过最大页数限制', {
+      ms.warning(t('mcp.pageLimitExceeded'), {
         duration: 3000,
       })
       return
@@ -91,11 +92,11 @@ onMounted(() => {
         </div>
         <div class="flex justify-end space-x-2">
           <NButton size="tiny" quaternary type="primary" @click="onShowInfoModal(mcpInfo)">
-            详情
+            {{ $t('chat.details') }}
           </NButton>
           <NButton size="tiny" quaternary type="primary" @click="onShowConfigModal(mcpInfo)">
-            <span v-if="mcpInfo.configured">配置</span>
-            <span v-if="!mcpInfo.configured">启用</span>
+            <span v-if="mcpInfo.configured">{{ $t('setting.config') }}</span>
+            <span v-if="!mcpInfo.configured">{{ $t('chat.enable') }}</span>
           </NButton>
         </div>
       </div>
