@@ -41,7 +41,7 @@ const isChatting = ref<boolean>(false)
 const chattingMsg = ref<Chat.ChatMessage>(emptyChatMessage())
 const showAudioRecorderModal = ref<boolean>(false)
 const messages = computed(() => {
-  return chatStore.getMsgsByConv(props.conversationUuid)
+  return chatStore.getMsgsByConv(chatStore.active)
 })
 let controller = new AbortController()
 let arrowKeyIdx = -1
@@ -139,9 +139,9 @@ function handleShowAudioRecorderModal() {
   showAudioRecorderModal.value = true
 }
 
-const fetchChatAPIOnce = async (message: string, userAudioUuid: string, userAudioDuration: number) => {
+const fetchChatAPIOnce = async (convUuid: string, message: string, userAudioUuid: string, userAudioDuration: number) => {
   console.log('input editor chat')
-  const conv = chatStore.getConvByUuid(props.conversationUuid)
+  const conv = chatStore.getConvByUuid(convUuid)
   if (!conv) {
     ms.error('会话不存在或已被删除')
     return
@@ -149,7 +149,7 @@ const fetchChatAPIOnce = async (message: string, userAudioUuid: string, userAudi
   api.sseProcess({
     options: {
       prompt: message,
-      conversationUuid: props.conversationUuid,
+      conversationUuid: convUuid,
       regenerateQuestionUuid: '',
       modelPlatform: appStore.selectedLLM.modelPlatform,
       modelName: appStore.selectedLLM.modelName,
@@ -172,7 +172,7 @@ const fetchChatAPIOnce = async (message: string, userAudioUuid: string, userAudi
       const answer = chattingMsg.value.children[0]
       for (let i = 0; i < chunk.length; i++) {
         appendChunk(
-          props.conversationUuid,
+          convUuid,
           answer.uuid,
           chunk[i],
           true, // thinking is true
@@ -187,7 +187,7 @@ const fetchChatAPIOnce = async (message: string, userAudioUuid: string, userAudi
         const answer = chattingMsg.value.children[0]
         for (let i = 0; i < chunk.length; i++) {
           appendChunk(
-            props.conversationUuid,
+            convUuid,
             answer.uuid,
             chunk[i],
             false, // thinking is false
@@ -228,16 +228,16 @@ const fetchChatAPIOnce = async (message: string, userAudioUuid: string, userAudi
       if (chunk.includes('[META]')) {
         const meta = chunk.replace('[META]', '')
         const metaData: Chat.MetaData = JSON.parse(meta)
-        updateMessageSomeFields(props.conversationUuid, chattingMsg.value.uuid, { ...metaData.question, thinking: false, loading: false })
-        updateMessageSomeFields(props.conversationUuid, answer.uuid, { ...metaData.answer, thinking: false, loading: false })
+        updateMessageSomeFields(convUuid, chattingMsg.value.uuid, { ...metaData.question, thinking: false, loading: false })
+        updateMessageSomeFields(convUuid, answer.uuid, { ...metaData.answer, thinking: false, loading: false })
         if (metaData.audioInfo) {
           answer.audioPlayState.audioUrl = metaData.audioInfo.url
           answer.audioDuration = metaData.audioInfo.duration
           answer.audioUuid = metaData.audioInfo.uuid
         }
       } else {
-        updateMessageSomeFields(props.conversationUuid, chattingMsg.value.uuid, { thinking: false, loading: false })
-        updateMessageSomeFields(props.conversationUuid, answer.uuid, { thinking: false, loading: false })
+        updateMessageSomeFields(convUuid, chattingMsg.value.uuid, { thinking: false, loading: false })
+        updateMessageSomeFields(convUuid, answer.uuid, { thinking: false, loading: false })
       }
       emit('messageComplelted', chattingMsg.value.uuid)
       isChatting.value = false
@@ -247,7 +247,7 @@ const fetchChatAPIOnce = async (message: string, userAudioUuid: string, userAudi
       ms.warning(error)
       isChatting.value = false
       const question = messages.value[messages.value.length - 1]
-      updateMessageSomeFields(props.conversationUuid, question.children[0].uuid, { remark: `系统提示：${error}`, thinking: false, loading: false })
+      updateMessageSomeFields(convUuid, question.children[0].uuid, { remark: `系统提示：${error}`, thinking: false, loading: false })
       chattingMsg.value.state = new Map<string, string>()
     },
   })
@@ -274,23 +274,34 @@ async function createChatTask(userAudioUuid = '', userAudioUrl = '', audioDurati
     const answerUuid = uuidv4().replace(/-/g, '')
     controller = new AbortController()
 
-    const conv = chatStore.getConvByUuid(props.conversationUuid)
+    let currentConvUuid = props.conversationUuid
+    let conv = chatStore.getConvByUuid(currentConvUuid)
     if (!conv) {
       ms.error('会话不存在或已被删除')
       return
     }
 
-    const isFirstMessage = chatStore.getMsgsByConv(props.conversationUuid).length === 0
+    if (currentConvUuid === 'default') {
+      const newTitle = message.length > 20 ? message.substring(0, 20) : message
+      const { data: newConv } = await api.convAdd({ title: newTitle, remark: '', aiSystemMessage: '' })
+      chatStore.clearDefault()
+      chatStore.addConvs([newConv])
+      chatStore.active = newConv.uuid
+      currentConvUuid = newConv.uuid
+      conv = newConv
+    }
+
+    const isFirstMessage = chatStore.getMsgsByConv(currentConvUuid).length === 0
     if (isFirstMessage) {
       const newTitle = message.length > 20 ? message.substring(0, 20) : message
       try {
-        await api.convEdit(props.conversationUuid, { title: newTitle })
-        chatStore.updateConv(props.conversationUuid, { title: newTitle })
+        await api.convEdit(currentConvUuid, { title: newTitle })
+        chatStore.updateConv(currentConvUuid, { title: newTitle })
       } catch (error) {
         console.error('Failed to update conversation title:', error)
       }
     }
-    const answerContentType = chatStore.answerContentType(conv, userAudioUuid)
+    const answerContentType = chatStore.answerContentType(conv!, userAudioUuid)
 
     const audioPlayState = emptyAudioPlayState()
     audioPlayState.audioUrl = userAudioUrl
@@ -334,11 +345,11 @@ async function createChatTask(userAudioUuid = '', userAudioUrl = '', audioDurati
     }
     // add my question
     addMessage(
-      props.conversationUuid,
+      currentConvUuid,
       chattingMsg.value,
       true,
     )
-    await fetchChatAPIOnce(message, userAudioUuid, audioDuration)
+    await fetchChatAPIOnce(currentConvUuid, message, userAudioUuid, audioDuration)
   } catch (error: any) {
     console.error(`fetchChatAPIOnce error:${error}`)
     const errorMessage = error?.message ?? t('common.wrong')
